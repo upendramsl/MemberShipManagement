@@ -1,203 +1,279 @@
 package com.techpalle.Dao;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 
 import com.techpalle.model.Customer;
 
-public class CustomerDao {
-	private static Connection con=null;
-	private static PreparedStatement ps=null;
+public class CustomerDao 
+{
+	private static final String dbUrl = "jdbc:mysql://localhost:3306/customer_management";
+	private static final String dbUsername = "root";
+	private static final String dbPassword = "upendra";
 	
-
-	public static void insertDetailes(Customer c) 
+	private static Connection con = null;
+	private static PreparedStatement ps = null;
+	private static Statement stm = null;
+	private static ResultSet rs = null;
+	
+	private static final String customersListQuery = "select * from customer";
+	private static final String customerInsert = "insert into customer(name, email, mobile) values(?,?,?)";
+	private static final String customerEditQuery = "select * from customer where id = ?";
+	private static final String customerUpdateQuery = "update customer set name=?, email=?, mobile=? where id=?";
+	
+	private static final String customerDeleteQuery = "delete from customer where id=?";
+	
+	public static void deleteCustomer(int id)
 	{
-		try {
-			Class.forName("com.mysql.cj.jdbc.Driver");
-			 con=DriverManager.getConnection("jdbc:mysql://localhost:3306/Customer_Management","root","upendra");
-			 String  qry="insert into customer(name,email,mobile) values(?,?,?)";
-			 ps=con.prepareStatement(qry);
-
-			 ps.setString(1,c.getName());
-			 ps.setString(2,c.getEmail());
-			 ps.setLong(3,c.getMobile());
-			 ps.executeUpdate();
-		 
-			 
-		} 
-		catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} 
-		catch (SQLException e) {
-			e.printStackTrace();
-		}
-		finally
-		{
-			try {
-				if(ps!=null)
-				{
-					
-				ps.close();
-			} 
-				if(con!=null)
-				{
-					con.close();
-				}
-			}
-			
-			catch (SQLException e) {
-				e.printStackTrace();
-			}
-			
-			
-		}
-		
-		
-	}
-	public static void updateDetailes(Customer c) 
-	{
-		try {
-			Class.forName("com.mysql.cj.jdbc.Driver");
-			 con=DriverManager.getConnection("jdbc:mysql://localhost:3306/Customer_Management","root","upendra");
-			 String  qry="update customer set name=?,email=?,mobile=? where id=?";
-			 ps=con.prepareStatement(qry);
-			 ps.setString(1,c.getName());
-			 ps.setString(2,c.getEmail());
-			 ps.setLong(3,c.getMobile());
-			 ps.setInt(4,c.getId());
-			 
-			 ps.executeUpdate();
-		 
-			 
-		} 
-		catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} 
-		catch (SQLException e) {
-			e.printStackTrace();
-		}
-		finally
-		{
-			try {
-				if(ps!=null)
-				{
-					
-				ps.close();
-			} 
-				if(con!=null)
-				{
-					con.close();
-				}
-			}
-			
-			catch (SQLException e) {
-				e.printStackTrace();
-			}
-			
-			
-		}
-		
-		
-	}
-	public static ArrayList<Customer> showAll()
-	{
-		ArrayList<Customer> a=new ArrayList<Customer>();
 		try 
-	    {
+		{
+			con = getConnectionDef();
+			
+			ps = con.prepareStatement(customerDeleteQuery);
+			ps.setInt(1, id);
+			
+			ps.executeUpdate();
+			
+		} 
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+		finally 
+		{
+			if(ps != null) {
+				try 
+				{
+					ps.close();
+				} 
+				catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+			if(con != null) {
+				try 
+				{
+					con.close();
+				} 
+				catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	public static void editCustomer(Customer c) 
+	{
+		try
+		{
+			con = getConnectionDef();
+			
+			ps = con.prepareStatement(customerUpdateQuery);
+			ps.setString(1, c.getName());
+			ps.setString(2, c.getEmail());
+			ps.setLong(3, c.getMobile());
+			ps.setInt(4, c.getId());
+			
+			ps.executeUpdate();
+			
+		} 
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+		finally 
+		{
+			if(ps != null) {
+				try 
+				{
+					ps.close();
+				} 
+				catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+			if(con != null) {
+				try 
+				{
+					con.close();
+				} 
+				catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	public static Customer getOneCustomer(int id) 
+	{
+		Customer c = null;
+		try 
+		{
+			con = getConnectionDef();
+			
+			ps = con.prepareStatement(customerEditQuery);
+			ps.setInt(1, id);
+			
+			rs = ps.executeQuery();
+			
+			rs.next();
+			
+			int i = rs.getInt("id");
+			String n = rs.getString("name");
+			String e = rs.getString("email");
+			long m = rs.getLong("mobile");
+			
+			c = new Customer(i, n, e, m);
+			
+		} 
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+		finally 
+		{
+			if(rs != null) {
+				try 
+				{
+					rs.close();
+				} 
+				catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+			if(ps != null) {
+				try 
+				{
+					ps.close();
+				} 
+				catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+			if(con != null) {
+				try 
+				{
+					con.close();
+				} 
+				catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return c;
+	}
+	
+	public static void addCustomer(Customer customer)
+	{
+		try 
+		{
+			con = getConnectionDef();
+			
+			ps = con.prepareStatement(customerInsert);
+			ps.setString(1, customer.getName());
+			ps.setString(2, customer.getEmail());
+			ps.setLong(3, customer.getMobile());
+			
+			ps.executeUpdate();
+			
+		} 
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+		finally 
+		{
+			if(ps != null) {
+				try 
+				{
+					ps.close();
+				} 
+				catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+			if(con != null) {
+				try 
+				{
+					con.close();
+				} 
+				catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	
+	public static Connection getConnectionDef() 
+	{
+		try 
+		{
 			Class.forName("com.mysql.cj.jdbc.Driver");
-		   con=DriverManager.getConnection("jdbc:mysql://localhost:3306/Customer_Management","root","upendra");
-			String qry="select * from customer";
-			Statement s = con.createStatement();
-			ResultSet rs = s.executeQuery(qry);
+			con = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
+		} 
+		catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} 
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return con;
+	}
+	
+	public static ArrayList<Customer> getAllCustomers() 
+	{
+		ArrayList<Customer> al = new ArrayList<Customer>();
+		try 
+		{
+			con = getConnectionDef();
+			stm = con.createStatement();
+			
+			rs = stm.executeQuery(customersListQuery);
+			
 			while(rs.next())
 			{
-				int id=rs.getInt("id");
-				String name=rs.getString("name");
-				String email=rs.getString("email");
-				long mobile=rs.getLong("mobile");
-				Customer s1=new Customer(id, name, email, mobile);
-				a.add(s1);
-			
+				int i = rs.getInt("id");
+				String n = rs.getString("name");
+				String e = rs.getString("email");
+				long m = rs.getLong("mobile");
+				
+				Customer c = new Customer(i, n, e, m);
+				
+				al.add(c);
 			}
-			
-		 
-			
-		} 
-	    catch (ClassNotFoundException e1) 
-	    {
-			e1.printStackTrace();
-		} catch (SQLException e1) {
-			e1.printStackTrace();
-		}
-	    finally
-	    {
-	    	try {
-	    		if(ps!=null)
-	    		{
-				ps.close();
-	    		}
-	    		if(con!=null)
-	    		{
-	    			con.close();
-	    		}
-			} 
-	    	
-	    	catch (SQLException e1) {
-				e1.printStackTrace();
-			}
-	    }
-		return a;
-		
-	    
-	}
-	public static void deleteDetailes(int i) 
-	{
-		try {
-			Class.forName("com.mysql.cj.jdbc.Driver");
-			 con=DriverManager.getConnection("jdbc:mysql://localhost:3306/Customer_Management","root","upendra");
-			 String  qry="delete from customer where id=?";
-			 
-			 ps=con.prepareStatement(qry);
-			 ps.setInt(1,i);
-			 ps.executeUpdate();
-		 
-			 
-		} 
-		catch (ClassNotFoundException e) {
-			e.printStackTrace();
 		} 
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
-		finally
+		finally 
 		{
-			try {
-				if(ps!=null)
+			if(rs != null) {
+				try 
 				{
-					
-				ps.close();
-			} 
-				if(con!=null)
-				{
-					con.close();
+					rs.close();
+				} 
+				catch (SQLException e) {
+					e.printStackTrace();
 				}
 			}
-			
-			catch (SQLException e) {
-				e.printStackTrace();
+			if(stm != null) {
+				try 
+				{
+					stm.close();
+				} 
+				catch (SQLException e) {
+					e.printStackTrace();
+				}
 			}
-			
-			
+			if(con != null) {
+				try 
+				{
+					con.close();
+				} 
+				catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
-		
-		
+		return al;
 	}
 	
 	
-
 }

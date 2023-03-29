@@ -1,12 +1,11 @@
 package com.techpalle.model;
 
-public class Customer
+public class Customer 
 {
 	private int id;
 	private String name;
 	private String email;
 	private long mobile;
-	
 	public int getId() {
 		return id;
 	}
@@ -31,6 +30,8 @@ public class Customer
 	public void setMobile(long mobile) {
 		this.mobile = mobile;
 	}
+	
+	// (U)Update Operation and (R)Display operation
 	public Customer(int id, String name, String email, long mobile) {
 		super();
 		this.id = id;
@@ -38,6 +39,8 @@ public class Customer
 		this.email = email;
 		this.mobile = mobile;
 	}
+	
+	// (C)Insert operation
 	public Customer(String name, String email, long mobile) {
 		super();
 		this.name = name;
@@ -45,7 +48,6 @@ public class Customer
 		this.mobile = mobile;
 	}
 	
+	// (D)Delete Operation --> We don't need constructor
 	
-	
-
 }
